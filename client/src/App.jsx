@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import gsap from 'gsap';
+import React, { useState, useEffect } from 'react';
 import Header from './components/common/Header.jsx';
 import Toast from './components/common/Toast.jsx';
 import PlayerList from './components/PlayerPool/PlayerList.jsx';
@@ -95,7 +94,7 @@ export default function App() {
         hasActiveMatch={Boolean(activeMatch && (activeMatch.status === 'innings1' || activeMatch.status === 'innings2'))}
       />
 
-      <main ref={mainContentRef} className="flex-1">
+      <main className="flex-1 w-full max-w-6xl mx-auto p-2 sm:p-4 md:p-6 transition-opacity duration-150">
         {/* SCORING / LIVE MATCH TAB */}
         {activeTab === 'scoring' && (
           activeMatch ? (
