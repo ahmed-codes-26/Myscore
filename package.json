@@ -1,0 +1,26 @@
+{
+  "name": "cricket-scorer",
+  "version": "1.0.0",
+  "description": "Casual-cricket scoring app with Last-Man-Batting rule",
+  "type": "module",
+  "scripts": {
+    "start": "node server/index.js",
+    "server": "node server/index.js",
+    "client": "npm --prefix client run dev",
+    "build": "npm --prefix client install && npm --prefix client run build",
+    "test": "node --test client/src/engine/*.test.js"
+  },
+  "keywords": [
+    "cricket",
+    "scoring",
+    "pwa",
+    "offline-first"
+  ],
+  "license": "MIT",
+  "dependencies": {
+    "cors": "^2.8.6",
+    "dotenv": "^18.0.10",
+    "express": "^5.3.0",
+    "mongoose": "^9.12.3"
+  }
+}
