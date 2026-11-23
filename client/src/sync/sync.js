@@ -177,8 +177,9 @@ export async function pullSync() {
         if (!local) {
           await db.players.put(p);
           newItemsCount++;
-        } else if (local.synced === 1) {
+        } else if (local.synced === 1 && (local.updatedAt !== p.updatedAt || local.name !== p.name || local.isGuest !== p.isGuest)) {
           await db.players.put(p);
+          newItemsCount++;
         }
       }
 
@@ -188,8 +189,9 @@ export async function pullSync() {
         if (!local) {
           await db.matches.put(m);
           newItemsCount++;
-        } else if (local.synced === 1) {
+        } else if (local.synced === 1 && (local.updatedAt !== m.updatedAt || local.status !== m.status)) {
           await db.matches.put(m);
+          newItemsCount++;
         }
       }
 
@@ -199,8 +201,9 @@ export async function pullSync() {
         if (!local) {
           await db.events.put(e);
           newItemsCount++;
-        } else if (local.synced === 1) {
+        } else if (local.synced === 1 && local.isDeleted !== e.isDeleted) {
           await db.events.put(e);
+          newItemsCount++;
         }
       }
     });

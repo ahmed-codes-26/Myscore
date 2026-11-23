@@ -74,7 +74,7 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded, showToa
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();
       }}
-      className="fixed inset-0 z-[9999] w-screen h-screen min-h-screen min-w-full bg-black/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
+      className="fixed inset-0 z-[9999] w-screen h-screen min-h-screen min-w-full bg-black/60 flex items-center justify-center p-3 sm:p-4 overflow-y-auto"
     >
       <div
         ref={modalRef}

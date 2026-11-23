@@ -18,8 +18,6 @@ export default function App() {
   const [players, setPlayers] = useState([]);
   const [toast, setToast] = useState(null);
 
-  const mainContentRef = useRef(null);
-
   const showToast = (message, type = 'info') => {
     setToast({ message, type });
     setTimeout(() => {
@@ -61,17 +59,6 @@ export default function App() {
       cleanupSync();
     };
   }, []);
-
-  // GSAP Tab transition animation (smooth opacity fade, no layout shift)
-  useEffect(() => {
-    if (mainContentRef.current) {
-      gsap.fromTo(
-        mainContentRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.18, ease: 'power2.out' }
-      );
-    }
-  }, [activeTab]);
 
   const handleMatchStarted = (match, openers) => {
     refreshPlayers();

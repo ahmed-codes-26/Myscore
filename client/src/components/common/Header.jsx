@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import gsap from 'gsap';
+import React, { useState, useEffect } from 'react';
 import { subscribeSyncStatus, syncAll, getUnsyncedCounts } from '../../sync/sync.js';
 
 export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
@@ -9,9 +8,6 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
     unsyncedCount: 0,
     isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true
   });
-
-  const backdropRef = useRef(null);
-  const panelRef = useRef(null);
 
   useEffect(() => {
     // Initial counts
@@ -40,39 +36,9 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
     };
   }, []);
 
-  // GSAP slide-in animation when menu opens
-  useEffect(() => {
-    if (isMenuOpen && panelRef.current && backdropRef.current) {
-      gsap.fromTo(
-        backdropRef.current,
-        { opacity: 0 },
-        { opacity: 1, duration: 0.25, ease: 'power2.out' }
-      );
-      gsap.fromTo(
-        panelRef.current,
-        { x: '100%' },
-        { x: '0%', duration: 0.3, ease: 'power3.out' }
-      );
-    }
-  }, [isMenuOpen]);
-
-  const handleCloseMenu = () => {
-    if (panelRef.current && backdropRef.current) {
-      gsap.to(backdropRef.current, { opacity: 0, duration: 0.2, ease: 'power2.in' });
-      gsap.to(panelRef.current, {
-        x: '100%',
-        duration: 0.25,
-        ease: 'power3.in',
-        onComplete: () => setIsMenuOpen(false)
-      });
-    } else {
-      setIsMenuOpen(false);
-    }
-  };
-
   const navigateTo = (tab) => {
     setActiveTab(tab);
-    handleCloseMenu();
+    setIsMenuOpen(false);
   };
 
   return (
@@ -214,120 +180,122 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
         </div>
       </header>
 
-      {/* Slide-out Side Drawer (Pure Red and White) */}
-      {isMenuOpen && (
-        <div className="fixed inset-0 z-50 flex">
-          {/* Backdrop */}
-          <div
-            ref={backdropRef}
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
-            onClick={handleCloseMenu}
-          />
+      {/* Slide-out Side Drawer (GPU Hardware Accelerated, Zero Lag) */}
+      <div
+        className={`fixed inset-0 z-50 transition-opacity duration-200 ${
+          isMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+        }`}
+      >
+        {/* Solid Backdrop (no heavy backdrop-blur filter) */}
+        <div
+          className="fixed inset-0 bg-black/60"
+          onClick={() => setIsMenuOpen(false)}
+        />
 
-          {/* Panel */}
-          <div
-            ref={panelRef}
-            className="relative ml-auto w-72 max-w-full bg-white h-full shadow-2xl flex flex-col z-10 border-l-4 border-red-600 overflow-hidden"
-          >
-            {/* Red Brand Header (No M icon) */}
-            <div className="bg-red-600 text-white px-5 py-4 flex items-center justify-between shadow-xs">
-              <span className="text-xl font-black tracking-tight">MyScore</span>
-              <button
-                type="button"
-                onClick={handleCloseMenu}
-                className="w-8 h-8 rounded-lg bg-red-700 hover:bg-red-800 flex items-center justify-center text-white text-sm font-bold transition"
-              >
-                ✕
-              </button>
-            </div>
+        {/* Panel (CSS transform hardware accelerated via will-change-transform) */}
+        <div
+          className={`relative ml-auto w-72 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col z-10 border-l-4 border-red-600 overflow-hidden transform transition-transform duration-250 ease-out will-change-transform ${
+            isMenuOpen ? 'translate-x-0' : 'translate-x-full'
+          }`}
+        >
+          {/* Red Brand Header */}
+          <div className="bg-red-600 text-white px-5 py-4 flex items-center justify-between shadow-xs">
+            <span className="text-xl font-black tracking-tight">MyScore</span>
+            <button
+              type="button"
+              onClick={() => setIsMenuOpen(false)}
+              className="w-8 h-8 rounded-lg bg-red-700 hover:bg-red-800 flex items-center justify-center text-white text-sm font-bold transition"
+            >
+              ✕
+            </button>
+          </div>
 
-            {/* Menu options: Pure Red & White */}
-            <nav className="flex-1 p-5 space-y-2.5 overflow-y-auto">
-              <button
-                type="button"
-                onClick={() => navigateTo('scoring')}
-                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between border-2 ${
-                  activeTab === 'scoring'
-                    ? 'bg-red-600 text-white border-red-600 shadow-xs'
-                    : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
-                }`}
-              >
-                <span>Live Match</span>
-                {hasActiveMatch ? (
-                  <span className={`w-2.5 h-2.5 rounded-full ${activeTab === 'scoring' ? 'bg-white' : 'bg-red-600'} animate-pulse`} />
+          {/* Menu options: Pure Red & White */}
+          <nav className="flex-1 p-5 space-y-2.5 overflow-y-auto">
+            <button
+              type="button"
+              onClick={() => navigateTo('scoring')}
+              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between border-2 ${
+                activeTab === 'scoring'
+                  ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                  : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
+              }`}
+            >
+              <span>Live Match</span>
+              {hasActiveMatch ? (
+                <span className={`w-2.5 h-2.5 rounded-full ${activeTab === 'scoring' ? 'bg-white' : 'bg-red-600'} animate-pulse`} />
+              ) : (
+                <span className="text-[11px] font-normal opacity-60">None</span>
+              )}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigateTo('setup')}
+              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition border-2 ${
+                activeTab === 'setup'
+                  ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                  : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
+              }`}
+            >
+              New Match
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigateTo('players')}
+              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition border-2 ${
+                activeTab === 'players'
+                  ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                  : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
+              }`}
+            >
+              Players
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigateTo('matches')}
+              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition border-2 ${
+                activeTab === 'matches'
+                  ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                  : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
+              }`}
+            >
+              Matches
+            </button>
+          </nav>
+
+          {/* Mobile Drawer Cloud Sync Footer */}
+          <div className="p-4 bg-slate-50 border-t-2 border-slate-200 space-y-2">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+              <span className="uppercase tracking-wider text-[10px] text-slate-400">Cloud Sync</span>
+              <span className="flex items-center gap-1.5">
+                {!syncInfo.isOnline ? (
+                  'Offline'
+                ) : syncInfo.isSyncing ? (
+                  'Syncing...'
+                ) : syncInfo.unsyncedCount > 0 ? (
+                  `${syncInfo.unsyncedCount} Unsaved`
                 ) : (
-                  <span className="text-[11px] font-normal opacity-60">None</span>
+                  'Synced'
                 )}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => navigateTo('setup')}
-                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition border-2 ${
-                  activeTab === 'setup'
-                    ? 'bg-red-600 text-white border-red-600 shadow-xs'
-                    : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
-                }`}
-              >
-                New Match
-              </button>
-
-              <button
-                type="button"
-                onClick={() => navigateTo('players')}
-                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition border-2 ${
-                  activeTab === 'players'
-                    ? 'bg-red-600 text-white border-red-600 shadow-xs'
-                    : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
-                }`}
-              >
-                Players
-              </button>
-
-              <button
-                type="button"
-                onClick={() => navigateTo('matches')}
-                className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition border-2 ${
-                  activeTab === 'matches'
-                    ? 'bg-red-600 text-white border-red-600 shadow-xs'
-                    : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
-                }`}
-              >
-                Matches
-              </button>
-            </nav>
-
-            {/* Mobile Drawer Cloud Sync Footer */}
-            <div className="p-4 bg-slate-50 border-t-2 border-slate-200 space-y-2">
-              <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-                <span className="uppercase tracking-wider text-[10px] text-slate-400">Cloud Sync</span>
-                <span className="flex items-center gap-1.5">
-                  {!syncInfo.isOnline ? (
-                    'Offline'
-                  ) : syncInfo.isSyncing ? (
-                    'Syncing...'
-                  ) : syncInfo.unsyncedCount > 0 ? (
-                    `${syncInfo.unsyncedCount} Unsaved`
-                  ) : (
-                    'Synced'
-                  )}
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => {
-                  syncAll();
-                  handleCloseMenu();
-                }}
-                disabled={syncInfo.isSyncing || !syncInfo.isOnline}
-                className="w-full py-2 px-3 rounded-xl bg-white border-2 border-slate-300 hover:border-red-600 hover:text-red-600 text-slate-800 text-xs font-black transition text-center disabled:opacity-50"
-              >
-                {syncInfo.isSyncing ? 'Syncing in Progress...' : 'Sync Now with Server'}
-              </button>
+              </span>
             </div>
+            <button
+              type="button"
+              onClick={() => {
+                syncAll();
+                setIsMenuOpen(false);
+              }}
+              disabled={syncInfo.isSyncing || !syncInfo.isOnline}
+              className="w-full py-2 px-3 rounded-xl bg-white border-2 border-slate-300 hover:border-red-600 hover:text-red-600 text-slate-800 text-xs font-black transition text-center disabled:opacity-50"
+            >
+              {syncInfo.isSyncing ? 'Syncing in Progress...' : 'Sync Now with Server'}
+            </button>
           </div>
         </div>
-      )}
+      </div>
     </>
   );
 }

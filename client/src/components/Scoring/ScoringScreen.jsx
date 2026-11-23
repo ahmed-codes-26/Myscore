@@ -283,12 +283,8 @@ export default function ScoringScreen({
     }
   }, [state?.inningsStatus, state?.needBowlerSelection, state?.currentOver, pendingNextBowlerId, currentInningsEvents.length, bowlingRoster, innings]);
 
-  // Animate button click with GSAP
-  const handleKeypadPressAnimation = (e) => {
-    if (e?.currentTarget) {
-      gsap.fromTo(e.currentTarget, { scale: 0.94 }, { scale: 1, duration: 0.15, ease: 'power2.out' });
-    }
-  };
+  // Keypad press handler (pure CSS active:scale-95 touch-btn transition for instant 60 FPS mobile response)
+  const handleKeypadPressAnimation = () => {};
 
   // Record a delivery
   const handleRecordBall = async ({
@@ -884,7 +880,7 @@ export default function ScoringScreen({
       {/* ======================================================== */}
       {/* MOBILE STICKY BOTTOM KEYPAD (Hidden on Laptop md+) */}
       {/* ======================================================== */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-50/95 backdrop-blur-xs p-2.5 sm:p-3 border-t-2 border-slate-200 shadow-2xl">
+      <div className="md:hidden fixed bottom-0 left-0 right-0 z-30 bg-slate-50 p-2.5 sm:p-3 border-t-2 border-slate-300 shadow-2xl">
         <div className="max-w-md mx-auto bg-white border-2 border-slate-300 rounded-3xl p-2.5 sm:p-3 shadow-sm space-y-2">
           {renderKeypadGrid()}
         </div>
@@ -894,7 +890,7 @@ export default function ScoringScreen({
       {/* NO-BALL RUNS PICKER MODAL (Centered exact middle) */}
       {/* ======================================================== */}
       {showNoBallModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
           <div
             ref={noBallModalRef}
             className="my-auto bg-white border-2 border-slate-300 rounded-3xl w-full max-w-xs p-5 space-y-3 shadow-2xl"
@@ -935,7 +931,7 @@ export default function ScoringScreen({
       {/* DECLARE BATSMAN MODAL (Centered exact middle) */}
       {/* ======================================================== */}
       {showDeclareModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
           <div
             ref={declareModalRef}
             className="my-auto bg-white border-2 border-slate-300 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl"
@@ -997,7 +993,7 @@ export default function ScoringScreen({
       {/* WICKET MODAL (Centered exact middle) */}
       {/* ======================================================== */}
       {showWicketModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
           <div
             ref={wicketModalRef}
             className="my-auto bg-white border-2 border-slate-300 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl"
@@ -1137,7 +1133,7 @@ export default function ScoringScreen({
       {/* BOWLER SELECTION MODAL (Centered exact middle) */}
       {/* ======================================================== */}
       {showBowlerModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
           <div
             ref={bowlerModalRef}
             className="my-auto bg-white border-2 border-slate-300 rounded-3xl w-full max-w-xs p-6 space-y-4 shadow-2xl"
@@ -1208,7 +1204,7 @@ export default function ScoringScreen({
       {/* INNINGS 1 BREAK MODAL (Centered exact middle) */}
       {/* ======================================================== */}
       {showInningsBreakModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
           <div
             ref={inningsBreakModalRef}
             className="my-auto bg-white border-2 border-slate-300 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl text-center"
@@ -1246,7 +1242,7 @@ export default function ScoringScreen({
       {/* 2ND INNINGS OPENERS MODAL (Centered exact middle) */}
       {/* ======================================================== */}
       {showSecondInningsOpenersModal && (
-        <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
+        <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 overflow-y-auto">
           <div
             ref={secondInningsModalRef}
             className="my-auto bg-white border-2 border-slate-300 rounded-3xl w-full max-w-sm p-6 space-y-4 shadow-2xl"
