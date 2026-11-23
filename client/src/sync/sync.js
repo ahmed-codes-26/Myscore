@@ -147,8 +147,92 @@ let debounceTimer = null;
 export function triggerSync(delay = 1000) {
   if (debounceTimer) clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
-    pushSync().catch(() => {});
+    syncAll().catch(() => {});
   }, delay);
+}
+
+/**
+ * Pulls all records from MongoDB Atlas down into client IndexedDB.
+ * Does not overwrite un-synced local records (synced = 0).
+ */
+export async function pullSync() {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) {
+    return { offline: true };
+  }
+
+  try {
+    const res = await fetch('/api/sync/pull');
+    if (!res.ok) return { success: false };
+
+    const data = await res.json();
+    if (!data.success) return { success: false };
+
+    const { players = [], matches = [], events = [] } = data;
+    let newItemsCount = 0;
+
+    await db.transaction('rw', [db.players, db.matches, db.events], async () => {
+      // Ingest players
+      for (const p of players) {
+        const local = await db.players.get(p._id);
+        if (!local) {
+          await db.players.put(p);
+          newItemsCount++;
+        } else if (local.synced === 1) {
+          await db.players.put(p);
+        }
+      }
+
+      // Ingest matches
+      for (const m of matches) {
+        const local = await db.matches.get(m._id);
+        if (!local) {
+          await db.matches.put(m);
+          newItemsCount++;
+        } else if (local.synced === 1) {
+          await db.matches.put(m);
+        }
+      }
+
+      // Ingest events
+      for (const e of events) {
+        const local = await db.events.get(e._id);
+        if (!local) {
+          await db.events.put(e);
+          newItemsCount++;
+        } else if (local.synced === 1) {
+          await db.events.put(e);
+        }
+      }
+    });
+
+    const remaining = await getUnsyncedCounts();
+    notifyListeners({
+      isSyncing: false,
+      lastSyncedAt: new Date().toISOString(),
+      unsyncedCount: remaining.total,
+      pulledNewCount: newItemsCount
+    });
+
+    return {
+      success: true,
+      counts: {
+        players: players.length,
+        matches: matches.length,
+        events: events.length
+      },
+      newItemsCount
+    };
+  } catch (err) {
+    return { success: false, error: err.message };
+  }
+}
+
+/**
+ * Full sync: pushes local unsynced changes to server, then pulls cloud data.
+ */
+export async function syncAll() {
+  await pushSync().catch(() => {});
+  return await pullSync().catch(() => ({}));
 }
 
 /**
@@ -156,30 +240,39 @@ export function triggerSync(delay = 1000) {
  * - Syncs on network reconnection (online event)
  * - Syncs when app tab returns to foreground
  * - Syncs periodically every 25 seconds
+ * - Invokes onDataPulled callback when new cloud data arrives
  */
-export function initBackgroundSync() {
+export function initBackgroundSync(onDataPulled) {
   if (typeof window === 'undefined') return () => {};
 
+  const runFullSync = async () => {
+    await pushSync().catch(() => {});
+    const pullRes = await pullSync().catch(() => {});
+    if (pullRes?.newItemsCount > 0 && typeof onDataPulled === 'function') {
+      onDataPulled();
+    }
+  };
+
   const handleOnline = () => {
-    pushSync().catch(() => {});
+    runFullSync();
   };
 
   const handleVisibility = () => {
     if (document.visibilityState === 'visible') {
-      pushSync().catch(() => {});
+      runFullSync();
     }
   };
 
   window.addEventListener('online', handleOnline);
   document.addEventListener('visibilitychange', handleVisibility);
 
-  // Periodic background push timer
+  // Periodic background push & pull timer
   const interval = setInterval(() => {
-    pushSync().catch(() => {});
+    runFullSync();
   }, 25000);
 
-  // Initial push
-  pushSync().catch(() => {});
+  // Initial immediate full sync
+  runFullSync();
 
   return () => {
     window.removeEventListener('online', handleOnline);

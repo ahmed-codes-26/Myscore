@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
-import { subscribeSyncStatus, pushSync, getUnsyncedCounts } from '../../sync/sync.js';
+import { subscribeSyncStatus, syncAll, getUnsyncedCounts } from '../../sync/sync.js';
 
 export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -159,9 +159,9 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
           <div className="hidden md:flex items-center gap-2">
             <button
               type="button"
-              onClick={() => pushSync()}
+              onClick={() => syncAll()}
               disabled={syncInfo.isSyncing || !syncInfo.isOnline}
-              title={syncInfo.isOnline ? 'Tap to backup to cloud server' : 'Offline mode'}
+              title={syncInfo.isOnline ? 'Tap to sync with cloud server' : 'Offline mode'}
               className="text-xs font-bold border-2 border-slate-200 hover:border-red-600 px-3 py-1.5 rounded-xl transition flex items-center gap-2 text-slate-700 hover:text-red-600 disabled:opacity-60 disabled:hover:border-slate-200 disabled:hover:text-slate-700"
             >
               {syncInfo.isSyncing ? (
@@ -316,13 +316,13 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
               <button
                 type="button"
                 onClick={() => {
-                  pushSync();
+                  syncAll();
                   handleCloseMenu();
                 }}
                 disabled={syncInfo.isSyncing || !syncInfo.isOnline}
                 className="w-full py-2 px-3 rounded-xl bg-white border-2 border-slate-300 hover:border-red-600 hover:text-red-600 text-slate-800 text-xs font-black transition text-center disabled:opacity-50"
               >
-                {syncInfo.isSyncing ? 'Syncing in Progress...' : 'Sync Now to Server'}
+                {syncInfo.isSyncing ? 'Syncing in Progress...' : 'Sync Now with Server'}
               </button>
             </div>
           </div>

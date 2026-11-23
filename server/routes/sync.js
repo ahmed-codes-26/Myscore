@@ -129,4 +129,83 @@ router.post('/push', requireAdmin, async (req, res) => {
   }
 });
 
+/**
+ * GET /api/sync/pull
+ * Downloads all players, matches, and events from MongoDB Atlas so new devices,
+ * different domains (e.g. Render vs localhost), or fresh browsers populate their local IndexedDB.
+ */
+router.get('/pull', async (req, res) => {
+  if (!isDBConnected()) {
+    return res.status(503).json({
+      error: 'Database unavailable.',
+      db: 'disconnected'
+    });
+  }
+
+  try {
+    const [players, matches, events] = await Promise.all([
+      Player.find({}).lean(),
+      Match.find({}).lean(),
+      Event.find({}).lean()
+    ]);
+
+    // Format for client Dexie consumption (0/1 booleans)
+    const formattedPlayers = players.map(p => ({
+      _id: p._id,
+      name: p.name,
+      role: p.role || '',
+      isGuest: p.isGuest ? 1 : 0,
+      createdAt: p.createdAt ? new Date(p.createdAt).toISOString() : new Date().toISOString(),
+      updatedAt: p.updatedAt ? new Date(p.updatedAt).toISOString() : new Date().toISOString(),
+      synced: 1
+    }));
+
+    const formattedMatches = matches.map(m => ({
+      _id: m._id,
+      team1: m.team1,
+      team2: m.team2,
+      rules: m.rules,
+      battingFirstTeamKey: m.battingFirstTeamKey,
+      status: m.status,
+      openers: m.openers || {},
+      result: m.result || null,
+      createdAt: m.createdAt ? new Date(m.createdAt).toISOString() : new Date().toISOString(),
+      updatedAt: m.updatedAt ? new Date(m.updatedAt).toISOString() : new Date().toISOString(),
+      synced: 1
+    }));
+
+    const formattedEvents = events.map(e => ({
+      _id: e._id,
+      matchId: e.matchId,
+      innings: e.innings,
+      sequence: e.sequence,
+      type: e.type,
+      isDeleted: e.isDeleted ? 1 : 0,
+      isLegal: e.isLegal,
+      ballInOver: e.ballInOver,
+      runsOffBat: e.runsOffBat ?? 0,
+      extraType: e.extraType ?? null,
+      extraRuns: e.extraRuns ?? 0,
+      strikerId: e.strikerId ?? null,
+      nonStrikerId: e.nonStrikerId ?? null,
+      bowlerId: e.bowlerId ?? null,
+      wicket: e.wicket ?? null,
+      declaringBatsmanId: e.declaringBatsmanId ?? null,
+      replacementBatsmanId: e.replacementBatsmanId ?? null,
+      timestamp: e.timestamp ? new Date(e.timestamp).toISOString() : new Date().toISOString(),
+      synced: 1
+    }));
+
+    return res.json({
+      success: true,
+      players: formattedPlayers,
+      matches: formattedMatches,
+      events: formattedEvents
+    });
+  } catch (err) {
+    console.error('[Sync Pull Error]', err);
+    return res.status(500).json({ error: 'Failed to pull cloud records', details: err.message });
+  }
+});
+
 export default router;

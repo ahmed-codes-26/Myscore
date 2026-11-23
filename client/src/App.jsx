@@ -53,7 +53,10 @@ export default function App() {
   useEffect(() => {
     refreshPlayers();
     checkActiveMatch();
-    const cleanupSync = initBackgroundSync();
+    const cleanupSync = initBackgroundSync(async () => {
+      await refreshPlayers();
+      await checkActiveMatch();
+    });
     return () => {
       cleanupSync();
     };
