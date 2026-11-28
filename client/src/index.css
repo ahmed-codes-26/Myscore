@@ -12,9 +12,17 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* R-39: Interactive controls must show pointer cursor; disabled show not-allowed */
+  button, select, summary, [role="button"] {
+    cursor: pointer;
+  }
+  button:disabled, select:disabled, [role="button"][aria-disabled="true"] {
+    cursor: not-allowed;
+  }
 }
 
-/* Custom Grayish Rectangular Theme Scrollbar (No buttons, sharp edges) */
+/* R-31: Rectangular theme scrollbar intentionally mirrors cricket pitch scorebook lines */
 ::-webkit-scrollbar {
   width: 8px;
   height: 8px;

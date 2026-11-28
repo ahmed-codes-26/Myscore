@@ -76,7 +76,7 @@ export default function MatchSummary({ match, players, onBack, showToast }) {
   return (
     <div className="max-w-md lg:max-w-4xl mx-auto p-3 sm:p-5 space-y-4 font-sans text-slate-900 pb-20">
       {/* Top Banner */}
-      <div className="bg-white border-2 border-slate-300 rounded-3xl p-4 sm:p-6 shadow-sm space-y-3">
+      <div className="bg-white border-2 border-slate-300 rounded-2xl p-4 sm:p-6 shadow-sm space-y-3">
         <div className="flex justify-between items-center">
           <button
             onClick={onBack}
@@ -106,7 +106,7 @@ export default function MatchSummary({ match, players, onBack, showToast }) {
               </svg>
               <span>Export CSV</span>
             </button>
-            <span className="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+            <span className="text-xs font-bold px-2.5 py-0.5 rounded-lg bg-slate-100 text-slate-700 border border-slate-200">
               {match.status}
             </span>
           </div>
@@ -176,17 +176,17 @@ export default function MatchSummary({ match, players, onBack, showToast }) {
 
       {/* Scorecard Table (Responsive & Spacious on Desktop) */}
       {currentState && (
-        <div className="bg-white border-2 border-slate-300 rounded-3xl p-4 sm:p-6 shadow-sm space-y-6">
+        <div className="bg-white border-2 border-slate-300 rounded-2xl p-4 sm:p-6 shadow-sm space-y-6">
           {/* Batting Section */}
           <div className="space-y-3">
             <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-800">
-              Batting — {currentBattingTeam}
+              Batting: {currentBattingTeam}
             </h3>
 
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse text-xs sm:text-sm">
                 <thead>
-                  <tr className="border-b-2 border-slate-200 text-[10px] sm:text-xs font-bold text-slate-400 uppercase">
+                  <tr className="border-b-2 border-slate-200 text-[10px] sm:text-xs font-bold text-slate-500 uppercase">
                     <th className="py-2 pr-2 font-bold">Batter</th>
                     <th className="py-2 px-1 text-right font-mono w-10 sm:w-12">R</th>
                     <th className="py-2 px-1 text-right font-mono w-10 sm:w-12">B</th>

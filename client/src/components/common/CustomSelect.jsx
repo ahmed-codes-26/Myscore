@@ -33,13 +33,20 @@ export default function CustomSelect({
         setIsOpen(false);
       }
     };
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        setIsOpen(false);
+      }
+    };
     if (isOpen) {
       document.addEventListener('mousedown', handleOutsideClick);
       document.addEventListener('touchstart', handleOutsideClick);
+      document.addEventListener('keydown', handleKeyDown);
     }
     return () => {
       document.removeEventListener('mousedown', handleOutsideClick);
       document.removeEventListener('touchstart', handleOutsideClick);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [isOpen]);
 
@@ -54,8 +61,10 @@ export default function CustomSelect({
       <button
         type="button"
         disabled={disabled}
+        aria-haspopup="listbox"
+        aria-expanded={isOpen}
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-full bg-white border-2 rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between gap-2 transition shadow-xs focus:outline-none ${
+        className={`w-full bg-white border-2 rounded-xl px-3 py-2 text-xs font-bold flex items-center justify-between gap-2 transition shadow-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-red-500 focus-visible:ring-offset-1 ${
           isOpen
             ? 'border-red-500 ring-2 ring-red-100 text-slate-900'
             : 'border-slate-300 text-slate-800 hover:border-slate-400'
@@ -64,7 +73,7 @@ export default function CustomSelect({
         <span className="truncate">
           {selectedOption ? selectedOption.label : placeholder}
           {selectedOption?.sublabel && (
-            <span className="ml-1 text-[10px] text-slate-400 font-normal">
+            <span className="ml-1 text-[10px] text-slate-500 font-normal">
               {selectedOption.sublabel}
             </span>
           )}
@@ -78,6 +87,7 @@ export default function CustomSelect({
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
+          aria-hidden="true"
           strokeWidth="2.5"
         >
           <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />

@@ -97,7 +97,7 @@ export default function PlayerList({ onPlayerAdded, showToast }) {
             placeholder="Search players by name or role..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 placeholder-slate-400 focus:outline-none focus:border-red-500 transition"
+            className="w-full bg-slate-50 border-2 border-slate-300 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm font-semibold text-slate-900 placeholder-slate-500 focus:outline-none focus:border-red-500 transition"
           />
         </div>
       </div>
@@ -105,11 +105,11 @@ export default function PlayerList({ onPlayerAdded, showToast }) {
       {/* Directory Content */}
       <div className="space-y-3">
         {loading ? (
-          <div className="bg-white border-2 border-slate-300 rounded-3xl p-8 text-center text-xs text-slate-400 font-bold">
+          <div className="bg-white border-2 border-slate-300 rounded-2xl p-8 text-center text-xs text-slate-500 font-bold">
             Loading player directory...
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-white border-2 border-slate-300 rounded-3xl p-8 text-center space-y-2">
+          <div className="bg-white border-2 border-slate-300 rounded-2xl p-8 text-center space-y-2">
             <p className="text-xs font-bold text-slate-500">
               {players.length === 0 ? 'No players added yet.' : 'No matching players found.'}
             </p>

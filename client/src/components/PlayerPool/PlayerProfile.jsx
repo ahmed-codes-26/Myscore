@@ -98,7 +98,7 @@ export default function PlayerProfile({ player, onBack, onPlayerUpdated, showToa
   return (
     <div className="max-w-md lg:max-w-5xl mx-auto p-3 sm:p-5 space-y-4 sm:space-y-5 font-sans text-slate-900 pb-20">
       {/* Top Banner Card */}
-      <div className="bg-white border-2 border-slate-300 rounded-3xl p-4 sm:p-6 shadow-sm space-y-4">
+      <div className="bg-white border-2 border-slate-300 rounded-2xl p-4 sm:p-6 shadow-sm space-y-4">
         <div className="flex items-center justify-between">
           <button
             type="button"
@@ -175,11 +175,11 @@ export default function PlayerProfile({ player, onBack, onPlayerUpdated, showToa
 
           <div className="flex gap-2.5">
             <div className="flex-1 sm:flex-none bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-2.5 text-center min-w-[90px]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Matches</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Matches</span>
               <span className="text-xl font-black font-mono text-slate-900">{stats?.totalMatches || 0}</span>
             </div>
             <div className="flex-1 sm:flex-none bg-slate-50 border-2 border-slate-200 rounded-2xl px-4 py-2.5 text-center min-w-[90px]">
-              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400 block">Innings</span>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 block">Innings</span>
               <span className="text-xl font-black font-mono text-slate-900">{batting.innings || 0}</span>
             </div>
           </div>
@@ -189,7 +189,7 @@ export default function PlayerProfile({ player, onBack, onPlayerUpdated, showToa
       {/* Career Overview Stats: 2 Columns on mobile (spacious and clear!), 2 Columns on laptop */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Batting Card */}
-        <div className="bg-white border-2 border-slate-300 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3.5">
+        <div className="bg-white border-2 border-slate-300 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3.5">
           <div className="flex items-center justify-between border-b-2 border-slate-100 pb-2.5">
             <h3 className="text-xs sm:text-sm font-black uppercase tracking-wider text-slate-900">
               Batting Career
@@ -578,12 +578,12 @@ export default function PlayerProfile({ player, onBack, onPlayerUpdated, showToa
                           <div>
                             <span className="font-black text-slate-900">{log.bowling.wickets}/{log.bowling.runs}</span>
                             <span className="text-slate-500 ml-1">({log.bowling.oversText} ov)</span>
-                            <div className="text-[11px] text-slate-400 font-sans mt-0.5">
+                            <div className="text-[11px] text-slate-500 font-sans mt-0.5">
                               Econ {log.bowling.economy}
                             </div>
                           </div>
                         ) : (
-                          <span className="text-slate-400 italic font-sans text-xs">—</span>
+                          <span className="text-slate-500 italic font-sans text-xs">-</span>
                         )}
                       </td>
 

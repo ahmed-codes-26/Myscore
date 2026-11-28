@@ -253,6 +253,20 @@ export default function ScoringScreen({
     if (showSecondInningsOpenersModal) animateModalIn(secondInningsModalRef);
   }, [showSecondInningsOpenersModal]);
 
+  // Close modals on Escape key press
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        if (showNoBallModal) setShowNoBallModal(false);
+        else if (showDeclareModal) setShowDeclareModal(false);
+        else if (showWicketModal) setShowWicketModal(false);
+        else if (showBowlerModal && !state?.needBowlerSelection) setShowBowlerModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [showNoBallModal, showDeclareModal, showWicketModal, showBowlerModal, state?.needBowlerSelection]);
+
   // Handle over completion or innings end triggers
   useEffect(() => {
     if (!state) return;
@@ -731,15 +745,15 @@ export default function ScoringScreen({
             {/* Last-Man-Batting mode notification */}
             {state.isLastManMode && (
               <div className="text-center text-xs font-bold py-1.5 px-3 rounded-xl bg-red-50 text-red-700 border-2 border-red-200">
-                Last Man Bats Alone — Solo Batsman faces every delivery
+                Last Man Bats Alone: Solo Batsman faces every delivery
               </div>
             )}
           </div>
 
           {/* CARD 2: BATTING CARD (Stable order, star moves!) */}
-          <div className="bg-white border-2 border-slate-300 rounded-3xl p-4 sm:p-5 shadow-sm space-y-2.5">
+          <div className="bg-white border-2 border-slate-300 rounded-2xl p-4 sm:p-5 shadow-sm space-y-2.5">
             {/* Header: Batting | Run Ball */}
-            <div className="flex items-center justify-between text-xs font-bold text-slate-400 pb-1.5 border-b-2 border-slate-100">
+            <div className="flex items-center justify-between text-xs font-bold text-slate-500 pb-1.5 border-b-2 border-slate-100">
               <div className="flex items-center gap-2">
                 <span className="text-slate-700">Batting</span>
                 {!state.isLastManMode && state.nonStrikerId && (
@@ -793,7 +807,7 @@ export default function ScoringScreen({
           </div>
 
           {/* CARD 3: BOWLING & OVER CARD */}
-          <div className="bg-white border-2 border-slate-300 rounded-3xl p-4 sm:p-5 shadow-sm space-y-3">
+          <div className="bg-white border-2 border-slate-300 rounded-2xl p-4 sm:p-5 shadow-sm space-y-3">
             {/* Top row: Bowler Name & Figures */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2 min-w-0">

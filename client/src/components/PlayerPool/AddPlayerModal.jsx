@@ -28,7 +28,15 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded, showToa
         );
       }
     }
-  }, [isOpen]);
+
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -78,7 +86,7 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded, showToa
     >
       <div
         ref={modalRef}
-        className="my-auto bg-white border-2 border-slate-300 rounded-3xl w-full max-w-md p-5 sm:p-6 space-y-4 shadow-2xl"
+        className="my-auto bg-white border-2 border-slate-300 rounded-2xl w-full max-w-md p-5 sm:p-6 space-y-4 shadow-xl"
       >
         <div className="flex justify-between items-center pb-2 border-b-2 border-slate-100">
           <h3 className="text-lg sm:text-xl font-black text-slate-900 tracking-tight">
@@ -87,7 +95,8 @@ export default function AddPlayerModal({ isOpen, onClose, onPlayerAdded, showToa
           <button
             type="button"
             onClick={onClose}
-            className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition"
+            aria-label="Close modal"
+            className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-600 hover:text-slate-900 flex items-center justify-center transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
             title="Close"
           >
             {/* Bold straight-line cross icon */}

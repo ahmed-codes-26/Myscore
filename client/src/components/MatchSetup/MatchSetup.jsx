@@ -270,7 +270,7 @@ export default function MatchSetup({ onMatchStarted, onPlayerAdded, showToast })
       </div>
 
       {/* Main Step Card */}
-      <div className="bg-white border-2 border-slate-300 rounded-3xl p-4 sm:p-6 shadow-sm space-y-5">
+      <div className="bg-white border-2 border-slate-300 rounded-2xl p-4 sm:p-6 shadow-sm space-y-5">
         <div ref={stepContentRef} className="space-y-5 min-h-[300px] flex flex-col justify-between">
           <div>
             {/* STEP 1: TEAM NAMES */}
@@ -332,7 +332,7 @@ export default function MatchSetup({ onMatchStarted, onPlayerAdded, showToast })
                       step="1"
                       value={oversPerInnings}
                       onChange={(e) => setOversPerInnings(Number(e.target.value))}
-                      className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600 focus:outline-none"
+                      className="flex-1 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer accent-red-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2"
                     />
                     <button
                       type="button"

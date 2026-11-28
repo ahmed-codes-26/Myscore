@@ -26,15 +26,23 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
     const handleOnline = () => setSyncInfo(prev => ({ ...prev, isOnline: true }));
     const handleOffline = () => setSyncInfo(prev => ({ ...prev, isOnline: false }));
 
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
     window.addEventListener('online', handleOnline);
     window.addEventListener('offline', handleOffline);
+    window.addEventListener('keydown', handleKeyDown);
 
     return () => {
       unsubscribe();
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('keydown', handleKeyDown);
     };
-  }, []);
+  }, [isMenuOpen]);
 
   const navigateTo = (tab) => {
     setActiveTab(tab);
@@ -47,7 +55,7 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <button
             onClick={() => setActiveTab(hasActiveMatch ? 'scoring' : 'matches')}
-            className="text-left focus:outline-none"
+            className="text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 rounded-lg"
           >
             <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
               MyScore
@@ -194,7 +202,7 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
 
         {/* Panel (CSS transform hardware accelerated via will-change-transform) */}
         <div
-          className={`relative ml-auto w-72 max-w-[85vw] bg-white h-full shadow-2xl flex flex-col z-10 border-l-4 border-red-600 overflow-hidden transform transition-transform duration-250 ease-out will-change-transform ${
+          className={`relative ml-auto w-72 max-w-[85vw] bg-white h-full shadow-xl flex flex-col z-10 border-l-4 border-red-600 overflow-hidden transform transition-transform duration-250 ease-out will-change-transform ${
             isMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
@@ -204,7 +212,8 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
             <button
               type="button"
               onClick={() => setIsMenuOpen(false)}
-              className="w-8 h-8 rounded-lg bg-red-700 hover:bg-red-800 flex items-center justify-center text-white text-sm font-bold transition"
+              aria-label="Close menu"
+              className="w-8 h-8 rounded-lg bg-red-700 hover:bg-red-800 flex items-center justify-center text-white text-sm font-bold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               ✕
             </button>
