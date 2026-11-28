@@ -7,7 +7,7 @@ import ScoringScreen from './components/Scoring/ScoringScreen.jsx';
 import MatchSummary from './components/MatchSummary/MatchSummary.jsx';
 import MatchList from './components/MatchList/MatchList.jsx';
 import { getActiveMatch, getAllPlayers } from './db/operations.js';
-import { initBackgroundSync } from './sync/sync.js';
+import { initBackgroundSync, resetAllData } from './sync/sync.js';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('scoring');
@@ -86,12 +86,28 @@ export default function App() {
     }
   };
 
+  const handleResetAll = async () => {
+    const confirmed = window.confirm("Are you sure you want to clear all matches, players, and ball events? This will reset the app completely fresh.");
+    if (!confirmed) return;
+    try {
+      await resetAllData();
+      await refreshPlayers();
+      setActiveMatch(null);
+      setViewingSummaryMatch(null);
+      setActiveTab('setup');
+      showToast('All records cleared successfully', 'info');
+    } catch (err) {
+      showToast(err.message, 'danger');
+    }
+  };
+
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       <Header
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         hasActiveMatch={Boolean(activeMatch && (activeMatch.status === 'innings1' || activeMatch.status === 'innings2'))}
+        onResetAll={handleResetAll}
       />
 
         <main className="flex-1 w-full max-w-6xl mx-auto p-2 sm:p-4 md:p-6 transition-opacity duration-150">

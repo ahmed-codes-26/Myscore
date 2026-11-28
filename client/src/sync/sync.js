@@ -239,6 +239,33 @@ export async function syncAll() {
 }
 
 /**
+ * Wipes both local IndexedDB and cloud MongoDB records completely.
+ */
+export async function resetAllData() {
+  await db.transaction('rw', [db.players, db.matches, db.events], async () => {
+    await db.players.clear();
+    await db.matches.clear();
+    await db.events.clear();
+  });
+
+  if (typeof navigator !== 'undefined' && navigator.onLine) {
+    try {
+      await fetch('/api/sync/reset', { method: 'POST' });
+    } catch (e) {
+      console.warn('Failed to call /api/sync/reset:', e);
+    }
+  }
+
+  notifyListeners({
+    isSyncing: false,
+    lastSyncedAt: null,
+    unsyncedCount: 0
+  });
+
+  return { success: true };
+}
+
+/**
  * Initializes automatic background synchronization:
  * - Syncs on network reconnection (online event)
  * - Syncs when app tab returns to foreground

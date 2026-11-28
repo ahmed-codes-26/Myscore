@@ -208,4 +208,27 @@ router.get('/pull', async (req, res) => {
   }
 });
 
+/**
+ * POST /api/sync/reset
+ * Wipes all players, matches, and events from MongoDB so the user can start fresh.
+ */
+router.post('/reset', async (req, res) => {
+  if (!isDBConnected()) {
+    return res.status(503).json({ error: 'Database unavailable.', db: 'disconnected' });
+  }
+
+  try {
+    await Promise.all([
+      Player.deleteMany({}),
+      Match.deleteMany({}),
+      Event.deleteMany({})
+    ]);
+
+    return res.json({ success: true, message: 'All cloud database records cleared successfully' });
+  } catch (err) {
+    console.error('[Sync Reset Error]', err);
+    return res.status(500).json({ error: 'Failed to reset cloud database', details: err.message });
+  }
+});
+
 export default router;

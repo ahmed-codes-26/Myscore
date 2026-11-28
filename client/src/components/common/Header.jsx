@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { subscribeSyncStatus, syncAll, getUnsyncedCounts } from '../../sync/sync.js';
+import { subscribeSyncStatus, syncAll, getUnsyncedCounts, resetAllData } from '../../sync/sync.js';
 
-export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
+export default function Header({ activeTab, setActiveTab, hasActiveMatch, onResetAll }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [syncInfo, setSyncInfo] = useState({
     isSyncing: false,
@@ -72,9 +72,6 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
               }`}
             >
               <span>Live Match</span>
-              {hasActiveMatch && (
-                <span className="w-2 h-2 rounded-full bg-red-600 animate-pulse" />
-              )}
               {/* Bottom animated border: 100% when active, 0 to 100% on hover */}
               <span
                 className={`absolute bottom-0 left-0 h-0.5 bg-red-600 transition-all duration-300 ${
@@ -202,13 +199,16 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
 
         {/* Panel (CSS transform hardware accelerated via will-change-transform) */}
         <div
-          className={`relative ml-auto w-72 max-w-[85vw] bg-white h-full shadow-xl flex flex-col z-10 border-l-4 border-red-600 overflow-hidden transform transition-transform duration-250 ease-out will-change-transform ${
+          className={`relative ml-auto w-80 max-w-[88vw] bg-white h-full shadow-xl flex flex-col z-10 border-l-4 border-red-600 overflow-hidden transform transition-transform duration-250 ease-out will-change-transform ${
             isMenuOpen ? 'translate-x-0' : 'translate-x-full'
           }`}
         >
           {/* Red Brand Header */}
           <div className="bg-red-600 text-white px-5 py-4 flex items-center justify-between shadow-xs">
-            <span className="text-xl font-black tracking-tight">MyScore</span>
+            <div>
+              <span className="text-xl font-black tracking-tight block">MyScore</span>
+              <span className="text-[10px] text-red-100 font-medium">Casual Cricket Scorer</span>
+            </div>
             <button
               type="button"
               onClick={() => setIsMenuOpen(false)}
@@ -219,66 +219,120 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
             </button>
           </div>
 
-          {/* Menu options: Pure Red & White */}
-          <nav className="flex-1 p-5 space-y-2.5 overflow-y-auto">
+          {/* Menu options: Enhanced with Icons and Subtitles */}
+          <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+            {/* Live Match */}
             <button
               type="button"
               onClick={() => navigateTo('scoring')}
-              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition flex items-center justify-between border-2 ${
+              className={`w-full text-left p-3 rounded-xl transition flex items-center gap-3 border-2 ${
                 activeTab === 'scoring'
-                  ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                  ? 'bg-red-600 text-white border-red-600 shadow-sm'
                   : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
               }`}
             >
-              <span>Live Match</span>
-              {hasActiveMatch ? (
-                <span className={`w-2.5 h-2.5 rounded-full ${activeTab === 'scoring' ? 'bg-white' : 'bg-red-600'} animate-pulse`} />
-              ) : (
-                <span className="text-[11px] font-normal opacity-60">None</span>
-              )}
+              <div className={`p-2 rounded-lg ${activeTab === 'scoring' ? 'bg-red-700 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
+                  <polygon points="5 3 19 12 5 21 5 3" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold truncate">Live Match</span>
+                  {hasActiveMatch && (
+                    <span className={`text-[10px] font-black px-1.5 py-0.5 rounded ${activeTab === 'scoring' ? 'bg-white text-red-600' : 'bg-red-100 text-red-600'}`}>
+                      ACTIVE
+                    </span>
+                  )}
+                </div>
+                <p className={`text-[11px] truncate ${activeTab === 'scoring' ? 'text-red-100' : 'text-slate-500'}`}>
+                  Score current match innings
+                </p>
+              </div>
             </button>
 
+            {/* New Match */}
             <button
               type="button"
               onClick={() => navigateTo('setup')}
-              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition border-2 ${
+              className={`w-full text-left p-3 rounded-xl transition flex items-center gap-3 border-2 ${
                 activeTab === 'setup'
-                  ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                  ? 'bg-red-600 text-white border-red-600 shadow-sm'
                   : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
               }`}
             >
-              New Match
+              <div className={`p-2 rounded-lg ${activeTab === 'setup' ? 'bg-red-700 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="16" />
+                  <line x1="8" y1="12" x2="16" y2="12" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-bold block truncate">New Match</span>
+                <p className={`text-[11px] truncate ${activeTab === 'setup' ? 'text-red-100' : 'text-slate-500'}`}>
+                  Setup teams, overs & rules
+                </p>
+              </div>
             </button>
 
+            {/* Players */}
             <button
               type="button"
               onClick={() => navigateTo('players')}
-              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition border-2 ${
+              className={`w-full text-left p-3 rounded-xl transition flex items-center gap-3 border-2 ${
                 activeTab === 'players'
-                  ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                  ? 'bg-red-600 text-white border-red-600 shadow-sm'
                   : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
               }`}
             >
-              Players
+              <div className={`p-2 rounded-lg ${activeTab === 'players' ? 'bg-red-700 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-bold block truncate">Players</span>
+                <p className={`text-[11px] truncate ${activeTab === 'players' ? 'text-red-100' : 'text-slate-500'}`}>
+                  Squad directory & career stats
+                </p>
+              </div>
             </button>
 
+            {/* Matches */}
             <button
               type="button"
               onClick={() => navigateTo('matches')}
-              className={`w-full text-left px-4 py-3 rounded-xl text-sm font-bold transition border-2 ${
+              className={`w-full text-left p-3 rounded-xl transition flex items-center gap-3 border-2 ${
                 activeTab === 'matches'
-                  ? 'bg-red-600 text-white border-red-600 shadow-xs'
+                  ? 'bg-red-600 text-white border-red-600 shadow-sm'
                   : 'bg-white text-slate-800 border-slate-200 hover:border-red-400 hover:text-red-600'
               }`}
             >
-              Matches
+              <div className={`p-2 rounded-lg ${activeTab === 'matches' ? 'bg-red-700 text-white' : 'bg-slate-100 text-slate-700'}`}>
+                <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="square">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                  <line x1="16" y1="2" x2="16" y2="6" />
+                  <line x1="8" y1="2" x2="8" y2="6" />
+                  <line x1="3" y1="10" x2="21" y2="10" />
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0">
+                <span className="text-sm font-bold block truncate">Matches</span>
+                <p className={`text-[11px] truncate ${activeTab === 'matches' ? 'text-red-100' : 'text-slate-500'}`}>
+                  Past match history & scorecards
+                </p>
+              </div>
             </button>
           </nav>
 
-          {/* Mobile Drawer Cloud Sync Footer */}
-          <div className="p-4 bg-slate-50 border-t-2 border-slate-200 space-y-2">
+          {/* Mobile Drawer Cloud Sync & Reset Footer */}
+          <div className="p-4 bg-slate-50 border-t-2 border-slate-200 space-y-2.5">
             <div className="flex items-center justify-between text-xs font-bold text-slate-700">
-              <span className="uppercase tracking-wider text-[10px] text-slate-400">Cloud Sync</span>
+              <span className="uppercase tracking-wider text-[10px] text-slate-500 font-bold">Cloud Sync</span>
               <span className="flex items-center gap-1.5">
                 {!syncInfo.isOnline ? (
                   'Offline'
@@ -291,6 +345,7 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
                 )}
               </span>
             </div>
+
             <button
               type="button"
               onClick={() => {
@@ -301,6 +356,18 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch }) {
               className="w-full py-2 px-3 rounded-xl bg-white border-2 border-slate-300 hover:border-red-600 hover:text-red-600 text-slate-800 text-xs font-black transition text-center disabled:opacity-50"
             >
               {syncInfo.isSyncing ? 'Syncing in Progress...' : 'Sync Now with Server'}
+            </button>
+
+            {/* Clear all records for fresh setup */}
+            <button
+              type="button"
+              onClick={() => {
+                setIsMenuOpen(false);
+                onResetAll?.();
+              }}
+              className="w-full py-1.5 px-3 rounded-lg text-slate-500 hover:text-red-600 text-[11px] font-bold transition text-center hover:bg-red-50"
+            >
+              Reset & Clear All Records
             </button>
           </div>
         </div>
