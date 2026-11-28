@@ -25,6 +25,33 @@ export default function PlayerList({ onPlayerAdded, showToast }) {
     loadPlayers();
   }, []);
 
+  useEffect(() => {
+    const handlePopState = () => {
+      const hash = window.location.hash;
+      const params = new URLSearchParams(hash.split('?')[1] || '');
+      const playerId = params.get('player');
+      if (!playerId && selectedPlayer) {
+        setSelectedPlayer(null);
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [selectedPlayer]);
+
+  const handleSelectPlayer = (player) => {
+    setSelectedPlayer(player);
+    window.history.pushState(null, '', `#/players?player=${player._id}`);
+  };
+
+  const handleClosePlayer = () => {
+    if (window.location.hash.includes('?player=')) {
+      window.history.back();
+    } else {
+      setSelectedPlayer(null);
+      loadPlayers();
+    }
+  };
+
   const handleMakePermanent = async (e, player) => {
     e.stopPropagation();
     try {
@@ -46,10 +73,7 @@ export default function PlayerList({ onPlayerAdded, showToast }) {
     return (
       <PlayerProfile
         player={selectedPlayer}
-        onBack={() => {
-          setSelectedPlayer(null);
-          loadPlayers();
-        }}
+        onBack={handleClosePlayer}
         onPlayerUpdated={() => {
           loadPlayers();
           setSelectedPlayer(prev => ({ ...prev, isGuest: 0 }));
@@ -130,7 +154,7 @@ export default function PlayerList({ onPlayerAdded, showToast }) {
               {filtered.map((player) => (
                 <div
                   key={player._id}
-                  onClick={() => setSelectedPlayer(player)}
+                  onClick={() => handleSelectPlayer(player)}
                   className="bg-white border-2 border-slate-300 hover:border-red-500 active:bg-slate-50 rounded-2xl p-3.5 flex items-center justify-between transition cursor-pointer shadow-xs group"
                 >
                   <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -185,7 +209,7 @@ export default function PlayerList({ onPlayerAdded, showToast }) {
                     {filtered.map((player) => (
                       <tr
                         key={player._id}
-                        onClick={() => setSelectedPlayer(player)}
+                        onClick={() => handleSelectPlayer(player)}
                         className="hover:bg-red-50/50 cursor-pointer transition group"
                       >
                         <td className="py-3.5 pr-3">

@@ -9,13 +9,42 @@ import MatchList from './components/MatchList/MatchList.jsx';
 import { getActiveMatch, getAllPlayers } from './db/operations.js';
 import { initBackgroundSync, resetAllData } from './sync/sync.js';
 
+const VALID_TABS = ['scoring', 'setup', 'players', 'matches', 'summary'];
+
+function getTabFromHash() {
+  if (typeof window === 'undefined') return 'scoring';
+  const raw = window.location.hash.replace(/^#\/?/, '').split('?')[0];
+  return VALID_TABS.includes(raw) ? raw : null;
+}
+
 export default function App() {
-  const [activeTab, setActiveTab] = useState('scoring');
+  const [activeTab, setActiveTab] = useState(() => getTabFromHash() || 'scoring');
   const [activeMatch, setActiveMatch] = useState(null);
   const [viewingSummaryMatch, setViewingSummaryMatch] = useState(null);
   const [initialOpeners, setInitialOpeners] = useState(null);
   const [players, setPlayers] = useState([]);
   const [toast, setToast] = useState(null);
+
+  const navigateTab = (newTab, options = {}) => {
+    if (!VALID_TABS.includes(newTab)) return;
+    const targetHash = `#/${newTab}`;
+    if (window.location.hash !== targetHash) {
+      if (options.replace) {
+        window.history.replaceState(null, '', targetHash);
+      } else {
+        window.history.pushState(null, '', targetHash);
+      }
+    }
+    setActiveTab(newTab);
+  };
+
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      window.history.back();
+    } else {
+      navigateTab('scoring');
+    }
+  };
 
   const showToast = (message, type = 'info') => {
     setToast({ message, type });
@@ -48,22 +77,50 @@ export default function App() {
   };
 
   useEffect(() => {
+    const handlePopState = () => {
+      const tab = getTabFromHash();
+      if (tab) {
+        setActiveTab(tab);
+      } else {
+        setActiveTab('scoring');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    window.addEventListener('hashchange', handlePopState);
+
+    // Normalize initial URL hash if empty
+    if (!window.location.hash) {
+      const initial = getTabFromHash() || 'scoring';
+      window.history.replaceState(null, '', `#/${initial}`);
+    }
+
     refreshPlayers();
     checkActiveMatch();
     const cleanupSync = initBackgroundSync(async () => {
       await refreshPlayers();
       await checkActiveMatch();
     });
+
     return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('hashchange', handlePopState);
       cleanupSync();
     };
   }, []);
+
+  // Redirect to match history if user reloads while on summary tab without in-memory match
+  useEffect(() => {
+    if (activeTab === 'summary' && !viewingSummaryMatch) {
+      navigateTab('matches', { replace: true });
+    }
+  }, [activeTab, viewingSummaryMatch]);
 
   const handleMatchStarted = (match, openers) => {
     refreshPlayers();
     setActiveMatch(match);
     setInitialOpeners(openers);
-    setActiveTab('scoring');
+    navigateTab('scoring');
     showToast('Match started', 'success');
   };
 
@@ -71,7 +128,7 @@ export default function App() {
     await refreshPlayers();
     setActiveMatch(null);
     setViewingSummaryMatch(completedMatch);
-    setActiveTab('summary');
+    navigateTab('summary');
     showToast(summary || 'Match completed', 'success');
   };
 
@@ -79,10 +136,10 @@ export default function App() {
     refreshPlayers();
     if (m.status === 'innings1' || m.status === 'innings2') {
       setActiveMatch(m);
-      setActiveTab('scoring');
+      navigateTab('scoring');
     } else {
       setViewingSummaryMatch(m);
-      setActiveTab('summary');
+      navigateTab('summary');
     }
   };
 
@@ -94,7 +151,7 @@ export default function App() {
       await refreshPlayers();
       setActiveMatch(null);
       setViewingSummaryMatch(null);
-      setActiveTab('setup');
+      navigateTab('setup');
       showToast('All records cleared successfully', 'info');
     } catch (err) {
       showToast(err.message, 'danger');
@@ -105,9 +162,10 @@ export default function App() {
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans">
       <Header
         activeTab={activeTab}
-        setActiveTab={setActiveTab}
+        setActiveTab={navigateTab}
         hasActiveMatch={Boolean(activeMatch && (activeMatch.status === 'innings1' || activeMatch.status === 'innings2'))}
         onResetAll={handleResetAll}
+        onBack={handleGoBack}
       />
 
         <main className="flex-1 w-full max-w-6xl mx-auto p-2 sm:p-4 md:p-6 transition-opacity duration-150">
@@ -138,14 +196,14 @@ export default function App() {
                   <div className="space-y-2 pt-2">
                     <button
                       type="button"
-                      onClick={() => setActiveTab('setup')}
+                      onClick={() => navigateTab('setup')}
                       className="w-full py-3.5 bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black text-sm rounded-2xl shadow-xs transition"
                     >
                       Start a Match
                     </button>
                     <button
                       type="button"
-                      onClick={() => setActiveTab('matches')}
+                      onClick={() => navigateTab('matches')}
                       className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition"
                     >
                       View Match History
@@ -177,7 +235,7 @@ export default function App() {
           {activeTab === 'matches' && (
             <MatchList
               onSelectMatch={handleSelectMatch}
-              onNewMatch={() => setActiveTab('setup')}
+              onNewMatch={() => navigateTab('setup')}
               showToast={showToast}
             />
           )}
@@ -187,7 +245,7 @@ export default function App() {
             <MatchSummary
               match={viewingSummaryMatch}
               players={players}
-              onBack={() => setActiveTab('matches')}
+              onBack={handleGoBack}
               showToast={showToast}
             />
           )}

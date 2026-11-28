@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { subscribeSyncStatus, syncAll, getUnsyncedCounts, resetAllData } from '../../sync/sync.js';
 
-export default function Header({ activeTab, setActiveTab, hasActiveMatch, onResetAll }) {
+export default function Header({ activeTab, setActiveTab, hasActiveMatch, onResetAll, onBack }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [syncInfo, setSyncInfo] = useState({
     isSyncing: false,
@@ -53,14 +53,29 @@ export default function Header({ activeTab, setActiveTab, hasActiveMatch, onRese
     <>
       <header className="sticky top-0 z-40 bg-white border-b-2 border-slate-200 px-4 py-2.5 shadow-xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <button
-            onClick={() => setActiveTab(hasActiveMatch ? 'scoring' : 'matches')}
-            className="text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 rounded-lg"
-          >
-            <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
-              MyScore
-            </h1>
-          </button>
+          <div className="flex items-center gap-1.5">
+            {activeTab !== 'scoring' && (
+              <button
+                type="button"
+                onClick={onBack || (() => window.history.back())}
+                aria-label="Go back"
+                title="Go back"
+                className="p-1.5 -ml-1 rounded-xl text-slate-700 hover:text-slate-900 hover:bg-slate-100 active:scale-95 transition flex items-center justify-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600"
+              >
+                <svg className="w-5 h-5 text-slate-900" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5" strokeLinecap="square">
+                  <path d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+            )}
+            <button
+              onClick={() => setActiveTab(hasActiveMatch ? 'scoring' : 'matches')}
+              className="text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-600 focus-visible:ring-offset-2 rounded-lg"
+            >
+              <h1 className="text-xl sm:text-2xl font-black tracking-tight text-slate-900">
+                MyScore
+              </h1>
+            </button>
+          </div>
 
           {/* Desktop Navigation Links with Animated Bottom Border */}
           <nav className="hidden md:flex items-center gap-6">
